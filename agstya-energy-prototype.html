@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agstya.Energy — Interactive UX Case Study</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg2:#fafbfc; --panel:#ffffff; --panel2:#f6f7f9;
+    --line:#e6e8ec; --line2:#eef0f3;
+    --ink:#0e1116; --muted:#5b6573; --mut2:#9aa3b0;
+    --accent:#11a36b; --accent-soft:#e7f5ef;
+    --neg:#d4584f;
+    --radius:14px; --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 30px rgba(16,24,40,.06);
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);
+    line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+
+  /* ---------- logo ---------- */
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em;font-size:18px}
+  .brand .tile{width:30px;height:30px;border-radius:9px;background:var(--ink);position:relative;flex:none}
+  .brand .tile::after{content:"";position:absolute;inset:0;
+    -webkit-mask:none;background:
+      linear-gradient(var(--accent),var(--accent));
+    clip-path:polygon(56% 18%,34% 56%,48% 56%,44% 82%,66% 44%,52% 44%);}
+  .brand .dim{color:var(--accent);font-weight:600}
+
+  /* ---------- header ---------- */
+  header.hero{padding:46px 0 30px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+  .topbar .links{display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;background:var(--accent-soft);padding:6px 12px;border-radius:999px}
+  h1{font-size:clamp(30px,5vw,44px);line-height:1.08;margin:18px 0 12px;font-weight:700;letter-spacing:-.025em}
+  .sub{color:var(--muted);font-size:18px;max-width:640px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{font-size:13px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);
+    padding:6px 12px;border-radius:999px}
+  .chip b{color:var(--ink);font-weight:600}
+  .hint{font-size:13px;color:var(--mut2);margin-top:18px;display:flex;align-items:center;gap:7px}
+  .hint::before{content:"→";color:var(--accent);font-weight:700}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px;position:sticky;top:0;z-index:20;
+    background:rgba(255,255,255,.88);backdrop-filter:blur(8px);padding:12px 0}
+  .tab{flex:1;min-width:200px;text-align:left;cursor:pointer;border:1px solid var(--line);
+    background:var(--panel);color:var(--muted);border-radius:12px;padding:13px 15px;transition:.16s;font-family:var(--font)}
+  .tab:hover{border-color:#cdd2da}
+  .tab.active{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset;color:var(--ink)}
+  .tab .n{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.08em}
+  .tab .t{font-weight:700;font-size:15px;margin-top:3px}
+  .tab .d{font-size:12.5px;color:var(--mut2);margin-top:2px}
+
+  /* ---------- screen frame ---------- */
+  .screen{display:none;animation:fade .35s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .browser{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;box-shadow:var(--shadow)}
+  .bbar{display:flex;align-items:center;gap:7px;padding:11px 15px;border-bottom:1px solid var(--line);background:var(--bg2)}
+  .dot{width:10px;height:10px;border-radius:50%;background:#dfe2e7}
+  .url{flex:1;margin-left:8px;background:#fff;border:1px solid var(--line);border-radius:7px;
+    padding:5px 11px;font-size:12px;color:var(--mut2);font-family:ui-monospace,monospace}
+  .appbar{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--line)}
+  .navmini{display:flex;gap:18px;font-size:13.5px;color:var(--mut2)}
+  .navmini span.on{color:var(--ink);font-weight:600}
+  .stage{padding:22px}
+
+  .grid2{display:grid;grid-template-columns:1.25fr 1fr;gap:18px}
+  @media(max-width:780px){.grid2{grid-template-columns:1fr}.tab{min-width:100%}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .lbl{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mut2);font-weight:600}
+
+  /* ---------- screen 1 : map ---------- */
+  .mapwrap{background:var(--panel2);border:1px solid var(--line);border-radius:12px;overflow:hidden;min-height:330px}
+  .road{stroke:#dfe3e8;stroke-width:6;fill:none;stroke-linecap:round}
+  .road.major{stroke:#cdd3db;stroke-width:9}
+  .pin{cursor:pointer}
+  .pin circle.halo{fill:rgba(17,163,107,0);transition:.2s}
+  .pin.sel circle.halo{fill:rgba(17,163,107,.12)}
+  .pin .body{fill:#fff;stroke:#c2c8d2;stroke-width:2;transition:.16s}
+  .pin.sel .body{fill:var(--accent);stroke:var(--accent)}
+  .pin text{fill:var(--muted);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:central}
+  .pin.sel text{fill:#fff}
+  .sitelist{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+  .siterow{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--line);
+    border-radius:10px;cursor:pointer;background:var(--panel);transition:.14s}
+  .siterow:hover{border-color:#cdd2da}
+  .siterow.sel{border-color:var(--ink)}
+  .rank{width:25px;height:25px;border-radius:7px;display:grid;place-items:center;font-weight:700;font-size:13px;
+    background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+  .siterow.sel .rank{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .siterow .nm{flex:1;font-size:14px;font-weight:600}
+  .siterow .sc{font-size:13px;font-weight:700;color:var(--ink)}
+  .siterow .sc small{color:var(--mut2);font-weight:500}
+
+  .bigscore{font-size:38px;font-weight:700;letter-spacing:-.02em;margin-top:2px}
+  .bigscore small{font-size:15px;color:var(--mut2);font-weight:500}
+  .factor{margin:12px 0}
+  .factor .top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+  .factor .top b{color:var(--ink);font-weight:600}
+  .factor .top span{color:var(--muted)}
+  .bar{height:7px;border-radius:5px;background:var(--line2);overflow:hidden}
+  .bar>i{display:block;height:100%;border-radius:5px;background:var(--accent);transition:width .5s cubic-bezier(.2,.7,.2,1)}
+  .bar>i.low{background:var(--neg)}
+  .tip{display:flex;gap:9px;align-items:flex-start;margin-top:16px;padding:12px 14px;border-radius:10px;
+    background:var(--panel2);border:1px solid var(--line);font-size:13px;color:var(--muted)}
+
+  /* ---------- screen 2 : cost ---------- */
+  .control{margin:15px 0}
+  .control .top{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:7px}
+  .control .top b{font-weight:600}
+  .control .top .v{color:var(--accent);font-weight:700}
+  input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:5px;background:var(--line2);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--accent);cursor:pointer;border:3px solid #fff;box-shadow:0 0 0 1px var(--accent)}
+  .seg{display:flex;gap:5px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:4px}
+  .seg button{flex:1;border:0;background:transparent;color:var(--muted);padding:8px;border-radius:6px;
+    cursor:pointer;font-weight:600;font-size:13px;font-family:var(--font);transition:.14s}
+  .seg button.on{background:var(--ink);color:#fff}
+  .kpis{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px}
+  .kpi .num{font-size:24px;font-weight:700;margin-top:3px;letter-spacing:-.01em;color:var(--ink)}
+  .kpi .num.good{color:var(--accent)}
+  .kpi .num.neg{color:var(--neg)}
+  .payback{margin-top:12px;padding:15px;border-radius:11px;border:1px solid var(--line);background:var(--accent-soft)}
+  .payback .big{font-size:28px;font-weight:700;color:var(--accent)}
+
+  /* ---------- screen 3 : pricing ---------- */
+  .chart{display:flex;align-items:flex-end;gap:5px;height:200px;padding:18px 6px 0;
+    border-bottom:1px solid var(--line)}
+  .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;
+    cursor:pointer;position:relative;height:100%}
+  .col .demand{width:74%;border-radius:4px 4px 0 0;background:#d7dbe1;transition:.16s}
+  .col:hover .demand{background:#c2c8d2}
+  .col.peak .demand{background:#8b94a3}
+  .col.sel .demand{background:var(--accent)}
+  .col .pricetag{position:absolute;top:0;font-size:9px;font-weight:700;color:var(--ink);opacity:0;transition:.18s}
+  .col.sel .pricetag,.col:hover .pricetag{opacity:1}
+  .hours{display:flex;gap:5px;padding:6px 6px 0}
+  .hours div{flex:1;text-align:center;font-size:9.5px;color:var(--mut2)}
+  .legend{display:flex;gap:16px;font-size:12.5px;color:var(--muted);margin-top:12px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+  .revcompare{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:8px}
+  .revbox{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:13px;text-align:center}
+  .revbox .num{font-size:23px;font-weight:700;margin-top:3px;color:var(--ink)}
+  .revbox.win{border-color:var(--accent);background:var(--accent-soft)}
+  .revbox.win .num{color:var(--accent)}
+  .uplift{text-align:center;margin-top:12px;font-size:14px;color:var(--muted)}
+  .uplift b{color:var(--accent);font-size:16px}
+
+  /* ---------- explanation ---------- */
+  .explain{margin:22px 0 8px;background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px}
+  .explain .kic{font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  .explain h3{margin:8px 0 14px;font-size:21px;letter-spacing:-.015em;font-weight:700}
+  .deco{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:780px){.deco{grid-template-columns:1fr}}
+  .deco h5{margin:0 0 5px;font-size:13.5px;color:var(--ink);display:flex;align-items:center;gap:8px;font-weight:600}
+  .deco h5::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  .deco p{margin:0 0 14px;font-size:14px;color:var(--muted)}
+
+  /* ---------- tile heatmap ---------- */
+  .tilegrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:14px}
+  .tz{aspect-ratio:1.15;border-radius:8px;border:1px solid var(--line);cursor:pointer;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:.14s}
+  .tz:hover{transform:translateY(-2px)}
+  .tz.sel{outline:2px solid var(--ink);outline-offset:1px}
+  .tz .p{font-size:12px;font-weight:700}
+  .tz .z{font-size:8.5px;opacity:.7;font-weight:600}
+  .tilescale{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--mut2)}
+  .tilescale .bar{flex:1;height:7px;border-radius:5px;
+    background:linear-gradient(90deg,#eef0f3,var(--accent))}
+
+  /* ---------- charge market ---------- */
+  .ticker{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .ticker .sym{font-weight:700;font-size:15px;letter-spacing:.02em}
+  .ticker .sym small{color:var(--mut2);font-weight:500}
+  .ticker .price{font-size:34px;font-weight:700;letter-spacing:-.02em}
+  .ticker .chg{font-weight:700;font-size:14px;padding:3px 9px;border-radius:7px}
+  .chg.up{color:var(--accent);background:var(--accent-soft)}
+  .chg.down{color:var(--neg);background:#fbeae9}
+  .mchart{margin:8px 0 4px}
+  .mchart svg{width:100%;height:150px;display:block}
+  .posrow{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px}
+  @media(max-width:780px){.posrow{grid-template-columns:1fr}}
+  .sidebtns{display:flex;gap:8px;margin:10px 0}
+  .sidebtn{flex:1;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:11px;
+    cursor:pointer;font-weight:700;font-size:13px;font-family:var(--font);color:var(--muted);transition:.14s}
+  .sidebtn.long.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+  .sidebtn.short.on{background:#fbeae9;border-color:var(--neg);color:var(--neg)}
+  .stakebox .num{font-size:22px;font-weight:700}
+  .pnl{font-size:26px;font-weight:700}
+  .pnl.up{color:var(--accent)}.pnl.down{color:var(--neg)}
+  .mkt-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:9px;padding:10px 16px;
+    cursor:pointer;font-weight:600;font-size:13px;font-family:var(--font);transition:.14s}
+  .btn:hover{opacity:.88}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .feed{margin-top:6px;display:flex;flex-direction:column;gap:7px;max-height:170px;overflow:auto}
+  .feedrow{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;
+    padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+  .feedrow .who{color:var(--muted)}
+  .feedrow .side{font-weight:700}
+  .feedrow .side.long{color:var(--accent)}.feedrow .side.short{color:var(--neg)}
+  .disclaim{font-size:11.5px;color:var(--mut2);margin-top:14px;padding:10px 12px;border-radius:9px;
+    background:var(--panel2);border:1px solid var(--line)}
+
+  footer{color:var(--mut2);font-size:13px;text-align:center;padding:38px 0 56px;border-top:1px solid var(--line);margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="topbar">
+      <div class="brand"><span class="tile"></span>agstya<span class="dim">.energy</span></div>
+      <div class="links"><span>Case study</span><span>Process</span><span>Contact</span></div>
+    </div>
+
+    <span class="badge">UX Case Study</span>
+    <h1>Where to build, what it costs, how to price it.</h1>
+    <p class="sub">An interactive prototype of the platform that helps EV charging operators make a defensible siting decision, model payback before they commit, and price every session by real-time demand.</p>
+    <div class="meta">
+      <span class="chip"><b>Role</b> · Co-founder, Product &amp; UX</span>
+      <span class="chip"><b>Context</b> · Antler residency</span>
+      <span class="chip"><b>Surface</b> · Web platform for charge-point operators</span>
+    </div>
+    <div class="hint">Everything below is clickable — try the pins, sliders and hours.</div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-s="1">
+      <div class="n">FLOW 01</div><div class="t">Site Finder</div>
+      <div class="d">Rank locations on five hard criteria</div>
+    </button>
+    <button class="tab" data-s="2">
+      <div class="n">FLOW 02</div><div class="t">Cost &amp; Planner</div>
+      <div class="d">Model build cost, opex and payback live</div>
+    </button>
+    <button class="tab" data-s="3">
+      <div class="n">FLOW 03</div><div class="t">Dynamic Pricing</div>
+      <div class="d">Price by hour and by map tile</div>
+    </button>
+    <button class="tab" data-s="4">
+      <div class="n">FLOW 04</div><div class="t">Charge Market</div>
+      <div class="d">Bet on the price of charge, like a stock</div>
+    </button>
+  </nav>
+
+  <!-- ============ SCREEN 1 ============ -->
+  <section class="screen active" id="screen1">
+    <div class="browser">
+      <div class="bbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="url">app.agstya.energy / site-finder / bengaluru-orr</span></div>
+      <div class="appbar">
+        <div class="brand" style="font-size:15px"><span class="tile" style="width:24px;height:24px;border-radius:7px"></span>agstya<span class="dim">.energy</span></div>
+        <div class="navmini"><span class="on">Site Finder</span><span>Planner</span><span>Pricing</span><span>Portfolio</span></div>
+      </div>
+      <div class="stage">
+        <div class="grid2">
+          <div>
+            <div class="mapwrap">
+              <svg viewBox="0 0 460 330" width="100%" height="100%" style="display:block">
+                <rect width="460" height="330" fill="#f6f7f9"/>
+                <path class="road major" d="M30 70 H430"/>
+                <path class="road major" d="M60 20 V300"/>
+                <path class="road" d="M30 200 H430"/>
+                <path class="road" d="M230 20 V310"/>
+                <path class="road" d="M340 40 V300"/>
+                <path class="road" d="M60 260 H400"/>
+                <g id="pins"></g>
+              </svg>
+            </div>
+            <div class="sitelist" id="sitelist"></div>
+          </div>
+          <div class="card" id="scorecard">
+            <div class="lbl">Recommended site</div>
+            <h4 id="sName" style="font-size:17px;margin:6px 0 0">—</h4>
+            <div class="bigscore"><span id="sScore">0</span><small>/100 suitability</small></div>
+            <div id="sFactors" style="margin-top:6px"></div>
+            <div class="tip"><span>›</span><span id="sNote"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain">
+      <div class="kic">UX Rationale — Flow 01</div>
+      <h3>Lead with a ranked answer, scored on what kills projects.</h3>
+      <div class="deco">
+        <div>
+          <h5>Five criteria that actually decide a site</h5>
+          <p>Suitability is built from the factors operators lose sleep over: legal status of the land, available grid load, terrain feasibility, foot traffic, and ROI. The map opens pre-scored so the first thing you see is a defensible shortlist.</p>
+          <h5>Legal risk gets equal billing</h5>
+          <p>Disputed-land checks sit alongside demand and ROI — a high-traffic plot with a contested title is surfaced as the liability it is, not buried.</p>
+        </div>
+        <div>
+          <h5>Every score is glass-box</h5>
+          <p>Selecting a site breaks the number into all five criteria, with weak factors flagged in red. Transparency is what lets an operator defend the choice to an investor or board.</p>
+          <h5>One object, two views</h5>
+          <p>Map pin and list row are the same selection and stay in sync — spatial thinkers click the map, comparison thinkers scan the list.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 2 ============ -->
+  <section class="screen" id="screen2">
+    <div class="browser">
+      <div class="bbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="url">app.agstya.energy / planner / site-orr-junction</span></div>
+      <div class="appbar">
+        <div class="brand" style="font-size:15px"><span class="tile" style="width:24px;height:24px;border-radius:7px"></span>agstya<span class="dim">.energy</span></div>
+        <div class="navmini"><span>Site Finder</span><span class="on">Planner</span><span>Pricing</span><span>Portfolio</span></div>
+      </div>
+      <div class="stage">
+        <div class="grid2">
+          <div class="card">
+            <div class="lbl">Configure your build</div>
+            <div class="control">
+              <div class="top"><b>Number of charge points</b><span class="v" id="vChargers">6</span></div>
+              <input type="range" id="rChargers" min="2" max="16" value="6">
+            </div>
+            <div class="control">
+              <div class="top"><b>Charger type</b></div>
+              <div class="seg" id="segType">
+                <button data-t="dc" class="on">DC Fast (60kW)</button>
+                <button data-t="ac">AC (22kW)</button>
+              </div>
+            </div>
+            <div class="control">
+              <div class="top"><b>Monthly land / lease</b><span class="v" id="vRent">₹80k</span></div>
+              <input type="range" id="rRent" min="20" max="250" value="80" step="5">
+            </div>
+            <div class="control">
+              <div class="top"><b>Sessions / charger / day</b><span class="v" id="vUtil">8</span></div>
+              <input type="range" id="rUtil" min="2" max="20" value="8">
+            </div>
+          </div>
+          <div>
+            <div class="kpis">
+              <div class="kpi"><div class="lbl">Build cost (capex)</div><div class="num" id="kCapex">—</div></div>
+              <div class="kpi"><div class="lbl">Monthly opex</div><div class="num" id="kOpex">—</div></div>
+              <div class="kpi"><div class="lbl">Monthly revenue</div><div class="num good" id="kRev">—</div></div>
+              <div class="kpi"><div class="lbl">Monthly net</div><div class="num" id="kNet">—</div></div>
+            </div>
+            <div class="payback">
+              <div class="lbl">Estimated payback</div>
+              <div class="big" id="kPay">—</div>
+              <div style="font-size:13px;color:var(--muted)" id="kPayNote"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain">
+      <div class="kic">UX Rationale — Flow 02</div>
+      <h3>Make payback the headline — that's the real decision.</h3>
+      <div class="deco">
+        <div>
+          <h5>Sensible defaults, deeper on demand</h5>
+          <p>The planner opens with a realistic config so a first-time operator gets a credible number in seconds, then exposes the levers — count, charger type, rent, utilization — for the ones who want to tune.</p>
+          <h5>One number above all</h5>
+          <p>Capex, opex and revenue feed the question operators actually ask: <em>when do I make my money back?</em> Payback period gets the largest, most prominent treatment.</p>
+        </div>
+        <div>
+          <h5>Live feedback closes the loop</h5>
+          <p>Every slider recomputes instantly, turning a static spreadsheet into a what-if conversation.</p>
+          <h5>Honest about risk</h5>
+          <p>Net flips to red the moment a configuration loses money — the UI never hides a bad setup behind optimistic styling.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 3 ============ -->
+  <section class="screen" id="screen3">
+    <div class="browser">
+      <div class="bbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="url">app.agstya.energy / pricing / live</span></div>
+      <div class="appbar">
+        <div class="brand" style="font-size:15px"><span class="tile" style="width:24px;height:24px;border-radius:7px"></span>agstya<span class="dim">.energy</span></div>
+        <div class="navmini"><span>Site Finder</span><span>Planner</span><span class="on">Pricing</span><span>Portfolio</span></div>
+      </div>
+      <div class="stage">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+            <div><div class="lbl">Demand &amp; recommended price · 24h</div><h4 style="font-size:16px;margin:4px 0 0">ORR Junction — Tuesday</h4></div>
+            <div class="seg" id="segMode" style="max-width:280px">
+              <button data-m="static">Static ₹18/kWh</button>
+              <button data-m="dyn" class="on">Dynamic pricing</button>
+            </div>
+          </div>
+          <div class="chart" id="chart"></div>
+          <div class="hours" id="hours"></div>
+          <div class="legend">
+            <span><i style="background:#d7dbe1"></i>Demand (sessions)</span>
+            <span><i style="background:#8b94a3"></i>Peak window</span>
+            <span><i style="background:var(--accent)"></i>Selected hour</span>
+          </div>
+          <div class="revcompare">
+            <div class="revbox" id="boxStatic"><div class="lbl">Static daily revenue</div><div class="num" id="revStatic">—</div></div>
+            <div class="revbox win" id="boxDyn"><div class="lbl">Dynamic daily revenue</div><div class="num" id="revDyn">—</div></div>
+          </div>
+          <div class="uplift" id="uplift"></div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px">
+            <div><div class="lbl">Price by map tile</div><h4 style="font-size:16px;margin:4px 0 0">Bengaluru — live zone pricing</h4></div>
+            <div style="font-size:13px;color:var(--muted)" id="tzInfo">Select a tile</div>
+          </div>
+          <div class="tilegrid" id="tilegrid"></div>
+          <div class="tilescale"><span>₹14</span><span class="bar"></span><span>₹30 / kWh</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain">
+      <div class="kic">UX Rationale — Flow 03</div>
+      <h3>Recommend a price — but keep the operator in control.</h3>
+      <div class="deco">
+        <div>
+          <h5>Show the pattern that earns the price</h5>
+          <p>The demand curve is on screen before any price is suggested. A higher peak-hour rate then reads as <em>earned</em> by visible demand, not imposed by a black box.</p>
+          <h5>Make the upside undeniable</h5>
+          <p>A side-by-side of static vs. dynamic daily revenue, plus a single uplift figure, answers the only question that matters: is this worth turning on?</p>
+        </div>
+        <div>
+          <h5>Suggestion, not autopilot</h5>
+          <p>Operators distrust pricing they can't see. Toggling between modes — rather than forcing automation — builds the trust needed before they hand over control.</p>
+          <h5>Price resolves to the tile, not the city</h5>
+          <p>Pricing is spatial as well as temporal: the city is split into demand tiles, so a charger in a hot block earns more than one three streets away. The heatmap lets operators see — and click — exactly where price concentrates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 4 : CHARGE MARKET ============ -->
+  <section class="screen" id="screen4">
+    <div class="browser">
+      <div class="bbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="url">app.agstya.energy / market / chrg</span></div>
+      <div class="appbar">
+        <div class="brand" style="font-size:15px"><span class="tile" style="width:24px;height:24px;border-radius:7px"></span>agstya<span class="dim">.energy</span></div>
+        <div class="navmini"><span>Site Finder</span><span>Planner</span><span>Pricing</span><span class="on">Market</span></div>
+      </div>
+      <div class="stage">
+        <div class="card">
+          <div class="ticker">
+            <div class="sym">CHRG <small>· Bengaluru charge index · ₹/kWh</small></div>
+            <div class="price" id="mPrice">₹0</div>
+            <div class="chg up" id="mChg">+0.0%</div>
+          </div>
+          <div class="mchart"><svg id="mSvg" viewBox="0 0 600 150" preserveAspectRatio="none"></svg></div>
+
+          <div class="posrow">
+            <div>
+              <div class="lbl">Your position</div>
+              <div class="sidebtns">
+                <button class="sidebtn long on" data-side="long">▲ Long &nbsp;<small>price rises</small></button>
+                <button class="sidebtn short" data-side="short">▼ Short &nbsp;<small>price falls</small></button>
+              </div>
+              <div class="control">
+                <div class="top"><b>Stake</b><span class="v" id="mStakeV">₹5,000</span></div>
+                <input type="range" id="mStake" min="500" max="50000" step="500" value="5000">
+              </div>
+              <div class="kpis">
+                <div class="kpi"><div class="lbl">Entry price</div><div class="num" id="mEntry">—</div></div>
+                <div class="kpi"><div class="lbl">Open P&amp;L</div><div class="num" id="mPnl">—</div></div>
+              </div>
+              <div class="mkt-actions">
+                <button class="btn" id="mOpen">Open position</button>
+                <button class="btn ghost" id="mTick">Simulate next tick ▸</button>
+                <button class="btn ghost" id="mClose">Close</button>
+              </div>
+            </div>
+            <div>
+              <div class="lbl">Live market activity</div>
+              <div class="feed" id="mFeed"></div>
+            </div>
+          </div>
+          <div class="disclaim" id="mDisc">Concept feature · a prediction market on the charge index. All prices and positions are simulated — no real money, illustrative only.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="explain">
+      <div class="kic">UX Rationale — Flow 04</div>
+      <h3>Turn the charge price into a market operators can hedge.</h3>
+      <div class="deco">
+        <div>
+          <h5>One number, traded both ways</h5>
+          <p>The dynamic price from Flow 03 becomes a public index (CHRG). Operators and fleets can take a Long or Short view — the same primitive a stock has — to hedge exposure to volatile energy and demand.</p>
+          <h5>Familiar mental model</h5>
+          <p>Ticker, price chart, stake and P&amp;L borrow conventions traders already know, so there's almost zero learning curve for the financial users this feature targets.</p>
+        </div>
+        <div>
+          <h5>Commit, then watch it resolve</h5>
+          <p>Open a position, then step the market tick-by-tick to see P&amp;L move live — the cause-and-effect loop that makes a speculative product feel trustworthy rather than opaque.</p>
+          <h5>Risk shown honestly</h5>
+          <p>P&amp;L turns red on a loss and a persistent disclaimer frames it as simulated — the design never disguises downside or implies guaranteed return.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>Interactive prototype · agstya.energy UX case study by Shwetha · all figures illustrative</footer>
+</div>
+
+<script>
+/* ---------- tabs ---------- */
+const tabs=document.querySelectorAll('.tab');
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('active'));t.classList.add('active');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen'+t.dataset.s).classList.add('active');
+  window.scrollTo({top:document.querySelector('.tabs').offsetTop-10,behavior:'smooth'});
+}));
+
+/* ============ SCREEN 1 : SITE FINDER ============ */
+/* factors: higher = better. Order matches the five criteria. */
+const sites=[
+  {id:1,name:"ORR Junction — Marathahalli",x:230,y:70,score:90,
+    f:{"Land legal / clear title":86,"Grid load headroom":90,"Terrain suitability":85,"Foot traffic":96,"ROI":92},
+    note:"Clean title and spare grid load at the adjacent substation, on the highest-traffic stretch of the ORR corridor."},
+  {id:2,name:"Whitefield Tech Park gate",x:340,y:200,score:82,
+    f:{"Land legal / clear title":92,"Grid load headroom":68,"Terrain suitability":80,"Foot traffic":88,"ROI":80},
+    note:"Uncontested land and captive office-fleet demand, but grid load is tight — a transformer upgrade may be needed beyond 8 DC units."},
+  {id:3,name:"Electronic City Toll",x:60,y:260,score:74,
+    f:{"Land legal / clear title":70,"Grid load headroom":66,"Terrain suitability":72,"Foot traffic":90,"ROI":70},
+    note:"Strong highway traffic, but a pending boundary dispute on the parcel and premium land cost compress early ROI."},
+  {id:4,name:"Hebbal Flyover edge",x:60,y:70,score:64,
+    f:{"Land legal / clear title":58,"Grid load headroom":80,"Terrain suitability":62,"Foot traffic":72,"ROI":55},
+    note:"Sloped terrain raises civil cost and two operators already sit within 2km — splitting demand and dragging ROI down."}
+];
+const pinsG=document.getElementById('pins'),listG=document.getElementById('sitelist');
+sites.forEach(s=>{
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('class','pin');g.dataset.id=s.id;
+  g.innerHTML=`<circle class="halo" cx="${s.x}" cy="${s.y}" r="26"></circle>
+    <circle class="body" cx="${s.x}" cy="${s.y}" r="15"></circle>
+    <text x="${s.x}" y="${s.y}">${s.id}</text>`;
+  g.addEventListener('click',()=>selectSite(s.id));pinsG.appendChild(g);
+  const row=document.createElement('div');row.className='siterow';row.dataset.id=s.id;
+  row.innerHTML=`<div class="rank">${s.id}</div><div class="nm">${s.name}</div><div class="sc">${s.score}<small>/100</small></div>`;
+  row.addEventListener('click',()=>selectSite(s.id));listG.appendChild(row);
+});
+function selectSite(id){
+  const s=sites.find(x=>x.id===id);
+  document.querySelectorAll('.pin').forEach(p=>p.classList.toggle('sel',p.dataset.id==id));
+  document.querySelectorAll('.siterow').forEach(r=>r.classList.toggle('sel',r.dataset.id==id));
+  document.getElementById('sName').textContent=s.name;
+  animateScore(s.score);
+  const fc=document.getElementById('sFactors');fc.innerHTML='';
+  Object.entries(s.f).forEach(([k,v])=>{
+    const d=document.createElement('div');d.className='factor';
+    d.innerHTML=`<div class="top"><b>${k}</b><span>${v}</span></div><div class="bar"><i class="${v<65?'low':''}" style="width:0%"></i></div>`;
+    fc.appendChild(d);requestAnimationFrame(()=>d.querySelector('i').style.width=v+'%');
+  });
+  document.getElementById('sNote').textContent=s.note;
+}
+let scoreAnim;
+function animateScore(t){const el=document.getElementById('sScore');let c=0;clearInterval(scoreAnim);
+  scoreAnim=setInterval(()=>{c+=Math.ceil((t-c)/6);if(c>=t){c=t;clearInterval(scoreAnim)}el.textContent=c;},28);}
+selectSite(1);
+
+/* ============ SCREEN 2 : PLANNER ============ */
+let pType='dc';
+const fmt=n=>'₹'+(n>=1e7?(n/1e7).toFixed(2)+' Cr':n>=1e5?(n/1e5).toFixed(1)+' L':Math.round(n/1000)+'k');
+function plan(){
+  const n=+document.getElementById('rChargers').value;
+  const rent=+document.getElementById('rRent').value*1000;
+  const util=+document.getElementById('rUtil').value;
+  document.getElementById('vChargers').textContent=n;
+  document.getElementById('vRent').textContent='₹'+document.getElementById('rRent').value+'k';
+  document.getElementById('vUtil').textContent=util;
+  const unitCost=pType==='dc'?1100000:280000, kwhPS=pType==='dc'?25:12, margin=pType==='dc'?8:5;
+  const capex=n*unitCost+900000, sess=n*util*30;
+  const revenue=sess*kwhPS*(margin+(pType==='dc'?10:8));
+  const power=sess*kwhPS*(pType==='dc'?9:7);
+  const opex=rent+power+n*3000+45000, net=revenue-opex;
+  document.getElementById('kCapex').textContent=fmt(capex);
+  document.getElementById('kOpex').textContent=fmt(opex);
+  document.getElementById('kRev').textContent=fmt(revenue);
+  const netEl=document.getElementById('kNet');
+  netEl.textContent=(net<0?'-':'')+fmt(Math.abs(net));
+  netEl.className='num '+(net>=0?'good':'neg');
+  const pay=document.getElementById('kPay'),note=document.getElementById('kPayNote');
+  if(net<=0){pay.textContent='No payback';pay.style.color='var(--neg)';
+    note.textContent='This configuration loses money monthly — adjust utilization, rent or charger count.';}
+  else{const m=capex/net;pay.style.color='var(--accent)';
+    pay.textContent=m<12?m.toFixed(1)+' months':(m/12).toFixed(1)+' years';
+    note.textContent=`Recovering ${fmt(capex)} capex at ${fmt(net)} net/month.`;}
+}
+document.querySelectorAll('#rChargers,#rRent,#rUtil').forEach(r=>r.addEventListener('input',plan));
+document.querySelectorAll('#segType button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#segType button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');pType=b.dataset.t;plan();}));
+plan();
+
+/* ============ SCREEN 3 : DYNAMIC PRICING ============ */
+const demand=[2,1,1,1,2,4,8,14,18,15,11,10,12,11,9,10,13,19,22,20,14,9,6,3];
+const basePrice=18, maxD=Math.max(...demand);
+const dynPrice=d=>Math.round(14+(d/maxD)*14);
+let mode='dyn', selHour=18;
+const chart=document.getElementById('chart'),hoursEl=document.getElementById('hours');
+demand.forEach((d,h)=>{
+  const col=document.createElement('div');col.className='col';col.dataset.h=h;
+  if(d>=16)col.classList.add('peak');
+  col.innerHTML=`<div class="pricetag">₹${dynPrice(d)}</div><div class="demand" style="height:${8+d/maxD*82}%"></div>`;
+  col.addEventListener('click',()=>{selHour=h;renderPricing();});chart.appendChild(col);
+  const hd=document.createElement('div');hd.textContent=(h%3===0)?(h+'h'):'';hoursEl.appendChild(hd);
+});
+document.querySelectorAll('#segMode button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#segMode button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');mode=b.dataset.m;renderPricing();}));
+function renderPricing(){
+  const kwh=25;let s=0,dy=0;
+  demand.forEach((d)=>{s+=d*kwh*basePrice;dy+=d*kwh*dynPrice(d);});
+  document.querySelectorAll('#chart .col').forEach(c=>{
+    c.classList.toggle('sel',+c.dataset.h===selHour);
+    c.querySelector('.pricetag').textContent= mode==='dyn' ? '₹'+dynPrice(demand[+c.dataset.h]) : '₹'+basePrice;});
+  document.getElementById('revStatic').textContent=fmt(s);
+  document.getElementById('revDyn').textContent=fmt(dy);
+  const up=((dy-s)/s*100).toFixed(1);
+  document.getElementById('boxStatic').classList.toggle('win',mode==='static');
+  document.getElementById('boxDyn').classList.toggle('win',mode==='dyn');
+  const upl=document.getElementById('uplift');
+  if(mode==='dyn') upl.innerHTML=`Dynamic pricing lifts daily revenue by <b>+${up}%</b> — selected hour ${selHour}:00 → <b>₹${dynPrice(demand[selHour])}/kWh</b> at ${demand[selHour]} sessions.`;
+  else upl.innerHTML=`Flat ₹${basePrice}/kWh all day. Toggle to dynamic to recover <b>+${up}%</b> from peak demand.`;
+}
+renderPricing();
+
+/* ---------- tile heatmap ---------- */
+const zones=["Indiranagar","Koramangala","HSR Layout","Whitefield","ORR Tech","MG Road",
+  "Jayanagar","Marathahalli","BTM Layout","Hebbal","Yelahanka","JP Nagar",
+  "Sarjapur","Banashankari","Malleshwaram","KR Puram","Bellandur","E-City"];
+const tdemand=[.92,.88,.74,.81,.97,.7,.55,.83,.6,.5,.42,.58,.66,.48,.52,.69,.86,.78];
+const tgrid=document.getElementById('tilegrid');
+zones.forEach((z,i)=>{
+  const price=Math.round(14+tdemand[i]*16);
+  const a=(0.1+tdemand[i]*0.85).toFixed(2);
+  const el=document.createElement('div');el.className='tz';el.dataset.i=i;
+  el.style.background=`rgba(17,163,107,${a})`;
+  el.style.color=tdemand[i]>0.5?'#fff':'var(--ink)';
+  el.style.borderColor=tdemand[i]>0.5?'transparent':'var(--line)';
+  el.innerHTML=`<span class="p">₹${price}</span><span class="z">${z}</span>`;
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.tz').forEach(t=>t.classList.remove('sel'));
+    el.classList.add('sel');
+    document.getElementById('tzInfo').innerHTML=`<b style="color:var(--ink)">${z}</b> · ₹${price}/kWh · demand index ${(tdemand[i]*100|0)}`;
+  });
+  tgrid.appendChild(el);
+});
+
+/* ============ SCREEN 4 : CHARGE MARKET ============ */
+const mkt={series:[18,17.6,18.2,19,18.7,19.4,20.1,19.6,20.3,21,20.6,21.4,22,21.5,22.3,21.8,22.6,23.1],
+  side:'long',stake:5000,entry:null,open:false};
+const traders=["fleetops_BLR","ev_arbitrage","gridhedge","node_42","chargecap","volt_trader","kw_capital"];
+const svg=document.getElementById('mSvg');
+function drawChart(){
+  const s=mkt.series,n=s.length,mn=Math.min(...s)-1,mx=Math.max(...s)+1,W=600,H=150;
+  const X=i=>i/(n-1)*W, Y=v=>H-((v-mn)/(mx-mn))*(H-14)-7;
+  let line=s.map((v,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)}`).join(' ');
+  const up=s[n-1]>=s[0];const col=up?'#11a36b':'#d4584f';
+  const area=`${line} L600 ${H} L0 ${H} Z`;
+  svg.innerHTML=`<path d="${area}" fill="${up?'rgba(17,163,107,.10)':'rgba(212,88,79,.10)'}"/>
+    <path d="${line}" fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="${X(n-1)}" cy="${Y(s[n-1])}" r="4" fill="${col}"/>`;
+}
+function curP(){return mkt.series[mkt.series.length-1];}
+function fmtRs(n){return '₹'+Math.round(n).toLocaleString('en-IN');}
+function renderMkt(){
+  const c=curP(),first=mkt.series[0];
+  document.getElementById('mPrice').textContent='₹'+c.toFixed(2);
+  const pct=((c-first)/first*100);
+  const chg=document.getElementById('mChg');
+  chg.textContent=(pct>=0?'+':'')+pct.toFixed(1)+'%';chg.className='chg '+(pct>=0?'up':'down');
+  document.getElementById('mEntry').textContent=mkt.open?'₹'+mkt.entry.toFixed(2):'—';
+  const pnlEl=document.getElementById('mPnl');
+  if(mkt.open){
+    const move=(c-mkt.entry)/mkt.entry;
+    const pnl=(mkt.side==='long'?move:-move)*mkt.stake;
+    pnlEl.textContent=(pnl<0?'-':'+')+fmtRs(Math.abs(pnl));
+    pnlEl.className='num '+(pnl>=0?'good':'neg');
+  }else{pnlEl.textContent='—';pnlEl.className='num';}
+  drawChart();
+}
+function feed(who,side,stake,price){
+  const f=document.getElementById('mFeed');
+  const r=document.createElement('div');r.className='feedrow';
+  r.innerHTML=`<span class="who">${who}</span><span><span class="side ${side}">${side==='long'?'▲ LONG':'▼ SHORT'}</span> ${fmtRs(stake)}</span><span>₹${price.toFixed(2)}</span>`;
+  f.prepend(r);while(f.children.length>14)f.removeChild(f.lastChild);
+}
+document.querySelectorAll('.sidebtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.sidebtn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');mkt.side=b.dataset.side;renderMkt();}));
+document.getElementById('mStake').addEventListener('input',e=>{
+  mkt.stake=+e.target.value;
+  document.getElementById('mStakeV').textContent='₹'+mkt.stake.toLocaleString('en-IN');renderMkt();});
+document.getElementById('mOpen').addEventListener('click',()=>{
+  mkt.entry=curP();mkt.open=true;feed('You',mkt.side,mkt.stake,mkt.entry);renderMkt();});
+document.getElementById('mClose').addEventListener('click',()=>{
+  if(!mkt.open)return;mkt.open=false;feed('You closed',mkt.side,mkt.stake,curP());renderMkt();});
+document.getElementById('mTick').addEventListener('click',()=>{
+  let p=curP()*(1+(Math.random()-0.45)*0.05);p=Math.max(12,Math.min(32,p));
+  mkt.series.push(+p.toFixed(2));if(mkt.series.length>40)mkt.series.shift();
+  if(Math.random()>0.4)feed(traders[Math.random()*traders.length|0],
+    Math.random()>0.5?'long':'short',(Math.random()*20+1|0)*1000,curP());
+  renderMkt();});
+[traders[0],traders[2],traders[4]].forEach((t,i)=>feed(t,i%2?'short':'long',(i+2)*3000,17.6+i*0.6));
+renderMkt();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<svg width="300" height="72" viewBox="0 0 300 72" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="agstya.energy">
+  <!-- mark: rounded tile + minimal bolt -->
+  <rect x="6" y="14" width="44" height="44" rx="13" fill="#0E1116"/>
+  <path d="M31 23 L21 40 H28 L26 49 L37 31 H30 Z" fill="#11A36B"/>
+  <!-- wordmark -->
+  <text x="64" y="46" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="30" font-weight="700" letter-spacing="-0.5" fill="#0E1116">agstya<tspan fill="#11A36B" font-weight="600">.energy</tspan></text>
+</svg>
